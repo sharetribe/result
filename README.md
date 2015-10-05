@@ -8,7 +8,7 @@ Success result contains the data that the operation returns.
 
 Failure result contains the error (symbol or Exception) which describes the reason why the operation failed. In addition, Failure contains a human-readable error message for convenience and a data object, which may contain additional information about the error.
 
-Results are chainable. You can perform 3 operation and then validate the result. Error in the middle of the chain stops the chain execution.
+Results are chainable. Failure in the middle of the chain stops the execution.
 
 ## Usage
 
