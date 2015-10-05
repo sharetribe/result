@@ -137,3 +137,16 @@ Result.try { JSON.parse("invalid JSON") }
 Result.try { JSON.parse('{"valid_json": true}') }
 #=> #<Result::Success:0x007fd0d3b26ff0 @success=true, @data={"valid_json"=>true}>
 ```
+
+### Shortcut methods Succ and Fail
+
+```ruby
+# for convenience, you can use shortcut methods
+Succ("successful")
+#=> #<Result::Success:0x007faa41872d08 @success=true, @data="successful">
+
+# for convenience, you can use shortcut methods
+Fail(:failure)
+#=> #<Result::Failure:0x007faa41851540 @error_msg=nil, @success=false, @data=nil, @error=:failure>
+```
+
