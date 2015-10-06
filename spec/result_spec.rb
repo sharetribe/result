@@ -63,26 +63,57 @@ RSpec.describe Result do
     end
   end
 
-  describe "try" do
-    def operation(result)
-      if result
-        {data: true}
-      else
-        raise ArgumentError.new("Failed")
+  describe "adapters" do
+
+    describe "custom adapters" do
+      it "throws if adapter name is not symbol" do
+        expect {
+          Result.add_adapter!("not a symbol") { true }
+        }.to raise_error(ArgumentError)
+      end
+
+      it "throws if block is not given" do
+        expect {
+          Result.add_adapter!(:no_block_given)
+        }.to raise_error(ArgumentError)
+      end
+
+      it "adds and uses a custom :boolean adapter" do
+        Result.add_adapter!(:boolean) { |block|
+          if block.call
+            Result::Success.new
+          else
+            Result::Failure.new
+          end
+        }
+
+        expect(Result.from(:boolean) { true }.success?).to eq(true)
+        expect(Result.from(:boolean) { nil }.success?).to eq(false)
       end
     end
 
-    it "tries to do the operation and returns Success" do
-      res = Result.try { operation(true) }
-      expect(res.success?).to eq(true)
-      expect(res.data).to eq({data: true})
-    end
+    describe "from(:exception)" do
 
-    it "tries to do the operation and returns Failure" do
-      res = Result.try { operation(false) }
-      expect(res.success?).to eq(false)
-      expect(res.error).to be_a(ArgumentError)
-      expect(res.error_msg).to eq("Failed")
+      def operation(result)
+        if result
+          {data: true}
+        else
+          raise ArgumentError.new("Failed")
+        end
+      end
+
+      it "tries to do the operation and returns Success" do
+        res = Result.from(:exception) { operation(true) }
+        expect(res.success?).to eq(true)
+        expect(res.data).to eq({data: true})
+      end
+
+      it "tries to do the operation and returns Failure" do
+        res = Result.from(:exception) { operation(false) }
+        expect(res.success?).to eq(false)
+        expect(res.error).to be_a(ArgumentError)
+        expect(res.error_msg).to eq("Failed")
+      end
     end
   end
 

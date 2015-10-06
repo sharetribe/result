@@ -56,6 +56,42 @@ module Result
 
   end
 
+  def self.add_adapter!(name, &block)
+    unless name.is_a?(Symbol)
+      raise ArgumentError.new("Adapter name must be a symbol")
+    end
+
+    if block.nil?
+      raise ArgumentError.new("No block given")
+    end
+
+    @@adapters ||= {}
+
+    unless @@adapters[name].nil?
+      # TODO Add test
+      raise ArgumentError.new("Adapter #{name} already exists")
+    end
+
+    @@adapters[name] = block
+  end
+
+  def self.from(adapter_name, &block)
+    @@adapters ||= {}
+    adapter = @@adapters[adapter_name]
+
+    if adapter.nil?
+      # TODO Add test
+      raise ArgumentError.new("Adapter #{adapter_name} does not exist")
+    end
+
+    if block.nil?
+      # TODO Add test
+      raise ArgumentError.new("No block given")
+    end
+
+    adapter.call(block)
+  end
+
   def self.try(&block)
     begin
       Success.new(block.call)
@@ -65,3 +101,11 @@ module Result
   end
 
 end
+
+Result.add_adapter!(:exception) { |block|
+  begin
+    Result::Success.new(block.call)
+  rescue StandardError => e
+    Result::Failure.new(e, e.message)
+  end
+}
