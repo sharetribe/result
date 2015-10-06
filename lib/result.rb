@@ -91,15 +91,6 @@ module Result
 
     adapter.call(block)
   end
-
-  def self.try(&block)
-    begin
-      Success.new(block.call)
-    rescue StandardError => e
-      Failure.new(e, e.message)
-    end
-  end
-
 end
 
 Result.add_adapter!(:exception) { |block|
