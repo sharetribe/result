@@ -27,6 +27,8 @@ module Result
       if event_or_error == :success
         block.call(data)
       end
+
+      return self
     end
   end
 
@@ -65,6 +67,8 @@ module Result
       elsif event_or_error.is_a?(Class) && error.is_a?(event_or_error)
         block.call(error, error_msg, data)
       end
+
+      return self
     end
   end
 

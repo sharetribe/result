@@ -244,5 +244,27 @@ RSpec.describe Result do
       expect(on_zero_error).to eq(true)
       expect(on_argument_error).to eq(false)
     end
+
+    it "allows chaining" do
+      success = false
+      failure = false
+
+      Result::Success.new()
+        .on(:success) { success = true }
+        .on(:failure) { faulure = true }
+
+      expect(success).to eq(true)
+      expect(failure).to eq(false)
+
+      success = false
+      failure = false
+
+      Result::Failure.new()
+        .on(:success) { success = true }
+        .on(:failure) { failure = true }
+
+      expect(success).to eq(false)
+      expect(failure).to eq(true)
+    end
   end
 end
