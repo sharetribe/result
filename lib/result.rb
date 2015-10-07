@@ -83,7 +83,6 @@ module Result
     end
 
     if block.nil?
-      # TODO Add test
       raise ArgumentError.new("No block given")
     end
 

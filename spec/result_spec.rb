@@ -84,8 +84,13 @@ RSpec.describe Result do
       end
 
       it "throws if adapter can not be found" do
-        expect { Result.from(:adapter_does_not_exist) { true } }
+        expect { Result.from(:adapter_does_not_exist) { } }
           .to raise_error(ArgumentError, "Adapter adapter_does_not_exist does not exist")
+      end
+
+      it "throws if no block is given to the #from method" do
+        expect { Result.from(:exception) }
+          .to raise_error(ArgumentError, "No block given")
       end
 
       it "adds and uses a custom :boolean adapter" do
