@@ -196,6 +196,22 @@ RSpec.describe Result do
       expect(on_failure).to eq(true)
     end
 
+    it "passes error, error_msg and data to the failure handler" do
+      actual_error = nil
+      actual_error_msg = nil
+      actual_data = nil
+
+      Result::Failure.new(:my_error, "My error message", my_data: true)
+        .on(:failure) { |error, error_msg, data|
+        actual_error = error
+        actual_error_msg = error_msg
+        actual_data = data
+      }
+      expect(actual_error).to eq(:my_error)
+      expect(actual_error_msg).to eq("My error message")
+      expect(actual_data).to eq(my_data: true)
+    end
+
     it "executes only for a specific error" do
       on_failure = false
       on_error1 = false

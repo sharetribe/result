@@ -59,11 +59,11 @@ module Result
 
     def on(event_or_error, &block)
       if event_or_error == :failure
-        block.call
+        block.call(error, error_msg, data)
       elsif event_or_error == error
-        block.call
+        block.call(error, error_msg, data)
       elsif event_or_error.is_a?(Class) && error.is_a?(event_or_error)
-        block.call
+        block.call(error, error_msg, data)
       end
     end
   end
