@@ -25,7 +25,7 @@ module Result
 
     def on(event_or_error, &block)
       if event_or_error == :success
-        block.call
+        block.call(data)
       end
     end
   end

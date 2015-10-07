@@ -177,6 +177,14 @@ RSpec.describe Result do
       expect(on_failure).to eq(false)
     end
 
+    it "passes data to the success handler" do
+      actual_data = nil
+      Result::Success.new(my_data: true).on(:success) { |result_data|
+        actual_data = result_data
+      }
+      expect(actual_data).to eq(my_data: true)
+    end
+
     it "executes on(:failure) for Failure result" do
       on_success = false
       on_failure = false
