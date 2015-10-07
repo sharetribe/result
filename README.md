@@ -31,7 +31,7 @@ res = Result::Failure.new
 # failure with error code
 res = Result::Failure.new(:generic_error)
 
-# failure from exception (there's also a shortcut for this pattern, `try`)
+# failure from exception (there's also a shortcut for this pattern, see Adapters)
 res =
   begin
     # JSON.parse throws, if input is not valid JSON
@@ -66,7 +66,7 @@ Result::Failure.new(:error) #=> ArgumentError: The error code :error is reserved
 Result::Success.new("abc")
   .on(:success) { |v|
     puts v #=> "abc"
-  }.on(:error) {
+  }.on(:failure) {
     puts "error" # doesn't go here
   }
 
@@ -74,7 +74,7 @@ Result::Success.new("abc")
 Result::Failure.new(:generic_error)
   .on(:success) { |v|
     puts v #=> "abc" # doesn't go here
-  }.on(:error) {
+  }.on(:failure) {
     puts "error" #=> "error"
   }
 
@@ -85,7 +85,7 @@ Result::Failure.new(:specific_error)
     puts v #=> "abc" # doesn't go here
   .on(:specific_error) {
     puts "specific error" #=> "specific error"
-  }.on(:error) {
+  }.on(:failure) {
     puts "error" # doesn't go here
   }
 ```
@@ -113,29 +113,60 @@ Result::Success.new(1)
     Result::Success.new(v + 1)
   }.on(:success) { |v|
     puts v # doesn't go here
-  }.on(error) { |error, error_msg, data|
+  }.on(:failure) { |error, error_msg, data|
     error #=> :some_error
   }
 ```
 
-### Utils
+### Adapters
+
+Adapters let's you to convert other objects that describe a result of a operation to Result object.
+
+To call adapters, use `Result.from` method with the adapter name and a block.
+
+Out-of-the-box, Result implements only one adapter, `:exception`
+
+#### :exception adapter
 
 ```ruby
-# instead of begin/rescue...
-res =
-  begin
-    # JSON.parse throws, if input is not valid JSON
-    Result::Success.new(JSON.parse(payload))
-  rescue JSON::ParserError => e
-    Result::Failure.new(e)
+puts Result.from(:exception) {
+  JSON.parse('{"valid_json": true}')
+}
+#=> #<Result::Success:0x000001010ec520 @success=true, @data={"valid_json"=>true}>
+
+puts Result.from(:exception) {
+  JSON.parse('invalid JSON')
+}
+
+#=> #<Result::Failure:0x0000010211fe88 @error_msg="757: unexpected token at 'invalid JSON'", @success=false, @data=nil, @error=#<JSON::ParserError: 757: unexpected token at 'invalid JSON'>>
+```
+
+#### Custom adapters
+
+You can add your own adapters with `add_adapter!` method.
+
+```ruby
+# Adapter :hash expects that calling the block returns a hash,
+# which has a field called `success` which may be `true` or `false`
+Result.add_adapter!(:hash) { |block|
+  hash = block.call
+
+  if hash[:success]
+    Result::Success.new(hash)
+  else
+    Result::Failure.new(nil, nil, hash)
   end
+}
 
-# ...you can use try helper
-Result.try { JSON.parse("invalid JSON") }
-#=> #<Result::Failure:0x007fd0d3b37440 @error_msg="757: unexpected token at 'invalid JSON'", @success=false, @data=nil, @error=#<JSON::ParserError: 757: unexpected token at 'invalid JSON'>>
+Result.from(:hash) {
+  {success: true, additional_data: true}
+}
+#=> #<Result::Success:0x0000010402a9e0 @success=true, @data={:success=>true, :additional_data=>true}
 
-Result.try { JSON.parse('{"valid_json": true}') }
-#=> #<Result::Success:0x007fd0d3b26ff0 @success=true, @data={"valid_json"=>true}>
+Result.from(:hash) {
+  {success: false, additional_data: nil}
+}
+#=> #<Result::Failure:0x00000104018060 @error_msg=nil, @success=false, @data={:success=>false, :additional_data=>nil}, @error=nil>
 ```
 
 ### Shortcut methods Succ and Fail
