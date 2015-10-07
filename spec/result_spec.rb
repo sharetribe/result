@@ -147,7 +147,7 @@ RSpec.describe Result do
     end
 
     it "does not run if Failure" do
-      res = Result::Failure.new(:failure).and_then { |v| Result::Success.new(v + 1) }
+      res = Result::Failure.new(:error).and_then { |v| Result::Success.new(v + 1) }
       expect(res.success?).to eq(false)
     end
 
@@ -180,6 +180,14 @@ RSpec.describe Result do
   end
 
   describe "#on" do
+    it "reserves error names :success and :failure" do
+      expect { Result::Failure.new(:success) }
+        .to raise_error(ArgumentError, ":success is reserved and can not be used as an error")
+
+      expect { Result::Failure.new(:failure) }
+        .to raise_error(ArgumentError, ":failure is reserved and can not be used as an error")
+    end
+
     it "executes on(:success) for Success result" do
       on_success = false
       on_failure = false

@@ -41,9 +41,15 @@ module Result
 
   class Failure < Result
 
+    RESERVED_ERRORS = [:success, :failure].to_set
+
     def initialize(error = nil, error_msg = nil, data = nil)
       unless error.nil? || error.is_a?(Symbol) || error.is_a?(StandardError)
         raise ArgumentError.new("Error must be either nil, String or Exception")
+      end
+
+      if RESERVED_ERRORS.include?(error)
+        raise ArgumentError.new(":#{error} is reserved and can not be used as an error")
       end
 
       @error_msg =
