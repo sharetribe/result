@@ -86,13 +86,11 @@ module Result
       raise ArgumentError.new("No block given")
     end
 
-    adapter_result = adapter.call(block)
-
-    if adapter_result.is_a?(Result)
-      adapter_result
-    else
-      raise ArgumentError.new("Adapter must return a Result")
-    end
+    adapter.call(block).tap { |adapter_result|
+      unless adapter_result.is_a?(Result)
+        raise ArgumentError.new("Adapter must return a Result")
+      end
+    }
   end
 end
 
