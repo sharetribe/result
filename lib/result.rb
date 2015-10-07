@@ -41,7 +41,7 @@ module Result
 
   class Failure < Result
 
-    RESERVED_ERRORS = [:success, :failure].to_set
+    RESERVED_ERRORS = [:success, :failure]
 
     def initialize(error = nil, error_msg = nil, data = nil)
       unless error.nil? || error.is_a?(Symbol) || error.is_a?(StandardError)
