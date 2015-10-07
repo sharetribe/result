@@ -150,6 +150,11 @@ RSpec.describe Result do
       res = Result::Failure.new(:failure).and_then { |v| Result::Success.new(v + 1) }
       expect(res.success?).to eq(false)
     end
+
+    it "throws if block doesn't return Result" do
+      expect { Result::Success.new(1).and_then { |v| v } }
+        .to raise_error(ArgumentError, "Block must return Result")
+    end
   end
 
   describe "on_success" do
