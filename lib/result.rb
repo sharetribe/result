@@ -68,8 +68,7 @@ module Result
     @@adapters ||= {}
 
     unless @@adapters[name].nil?
-      # TODO Add test
-      raise ArgumentError.new("Adapter #{name} already exists")
+      raise ArgumentError.new("Adapter #{name} exists already")
     end
 
     @@adapters[name] = block

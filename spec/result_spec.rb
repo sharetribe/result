@@ -78,6 +78,11 @@ RSpec.describe Result do
         }.to raise_error(ArgumentError)
       end
 
+      it "throws if the name is already in use" do
+        expect { Result.add_adapter!(:name_in_use) { } }.not_to raise_error
+        expect { Result.add_adapter!(:name_in_use) { } }.to raise_error(ArgumentError, "Adapter name_in_use exists already")
+      end
+
       it "adds and uses a custom :boolean adapter" do
         Result.add_adapter!(:boolean) { |block|
           if block.call
