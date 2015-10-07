@@ -86,9 +86,13 @@ module Result
       raise ArgumentError.new("No block given")
     end
 
-    # TODO Test: The adapter must return result
+    adapter_result = adapter.call(block)
 
-    adapter.call(block)
+    if adapter_result.is_a?(Result)
+      adapter_result
+    else
+      raise ArgumentError.new("Adapter must return a Result")
+    end
   end
 end
 

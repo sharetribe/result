@@ -93,6 +93,13 @@ RSpec.describe Result do
           .to raise_error(ArgumentError, "No block given")
       end
 
+      it "throws if adapter doesn't return a Result" do
+        Result.add_adapter!(:broken_adapter) { |block| true }
+
+        expect { Result.from(:broken_adapter) { true } }
+          .to raise_error(ArgumentError, "Adapter must return a Result")
+      end
+
       it "adds and uses a custom :boolean adapter" do
         Result.add_adapter!(:boolean) { |block|
           if block.call
