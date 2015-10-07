@@ -31,6 +31,12 @@ module Result
       @success = true
       @data = data
     end
+
+    def on(event_or_error, &block)
+      if event_or_error == :success
+        block.call
+      end
+    end
   end
 
   class Failure < Result
@@ -54,6 +60,15 @@ module Result
       @error = error
     end
 
+    def on(event_or_error, &block)
+      if event_or_error == :failure
+        block.call
+      elsif event_or_error == error
+        block.call
+      elsif event_or_error.is_a?(Class) && error.is_a?(event_or_error)
+        block.call
+      end
+    end
   end
 
   def self.add_adapter!(name, &block)

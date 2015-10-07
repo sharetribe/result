@@ -178,4 +178,61 @@ RSpec.describe Result do
       expect(run_error).to eq(true)
     end
   end
+
+  describe "#on" do
+    it "executes on(:success) for Success result" do
+      on_success = false
+      on_failure = false
+
+      Result::Success.new().on(:success) { on_success = true }
+      Result::Success.new().on(:failure) { on_failure = true }
+
+      expect(on_success).to eq(true)
+      expect(on_failure).to eq(false)
+    end
+
+    it "executes on(:failure) for Failure result" do
+      on_success = false
+      on_failure = false
+
+      Result::Failure.new().on(:success) { on_success = true }
+      Result::Failure.new().on(:failure) { on_failure = true }
+
+      expect(on_success).to eq(false)
+      expect(on_failure).to eq(true)
+    end
+
+    it "executes only for a specific error" do
+      on_failure = false
+      on_error1 = false
+      on_error2 = false
+
+      res = Result::Failure.new(:error1)
+
+      res.on(:failure) { on_failure = true }
+      res.on(:error1) { on_error1 = true }
+      res.on(:error2) { on_error2 = true }
+
+      expect(on_failure).to eq(true)
+      expect(on_error1).to eq(true)
+      expect(on_error2).to eq(false)
+    end
+
+    it "executes only for a specific exception" do
+      on_failure = false
+      on_zero_error = false
+      on_argument_error = false
+
+      exception = ZeroDivisionError.new("You can't devide by zero")
+      res = Result::Failure.new(exception)
+
+      res.on(:failure) { on_failure = true }
+      res.on(ZeroDivisionError) { on_zero_error = true }
+      res.on(ArgumentError) { on_argument_error = true }
+
+      expect(on_failure).to eq(true)
+      expect(on_zero_error).to eq(true)
+      expect(on_argument_error).to eq(false)
+    end
+  end
 end
