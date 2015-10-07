@@ -83,6 +83,11 @@ RSpec.describe Result do
         expect { Result.add_adapter!(:name_in_use) { } }.to raise_error(ArgumentError, "Adapter name_in_use exists already")
       end
 
+      it "throws if adapter can not be found" do
+        expect { Result.from(:adapter_does_not_exist) { true } }
+          .to raise_error(ArgumentError, "Adapter adapter_does_not_exist does not exist")
+      end
+
       it "adds and uses a custom :boolean adapter" do
         Result.add_adapter!(:boolean) { |block|
           if block.call

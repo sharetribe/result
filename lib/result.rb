@@ -79,7 +79,6 @@ module Result
     adapter = @@adapters[adapter_name]
 
     if adapter.nil?
-      # TODO Add test
       raise ArgumentError.new("Adapter #{adapter_name} does not exist")
     end
 
@@ -87,6 +86,8 @@ module Result
       # TODO Add test
       raise ArgumentError.new("No block given")
     end
+
+    # TODO Test: The adapter must return result
 
     adapter.call(block)
   end
