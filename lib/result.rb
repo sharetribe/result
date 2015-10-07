@@ -15,15 +15,6 @@ module Result
         self
       end
     end
-
-    def on_success(&block)
-      block.call if success?
-    end
-
-    def on_failure(&block)
-      block.call unless success?
-    end
-
   end
 
   class Success < Result

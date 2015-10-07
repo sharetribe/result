@@ -157,28 +157,6 @@ RSpec.describe Result do
     end
   end
 
-  describe "on_success" do
-    it "runs only on success" do
-      run_success = false
-      run_error = false
-      Result::Success.new(1).on_success { run_success = true }
-      Result::Failure.new().on_success { run_error = true }
-      expect(run_success).to eq(true)
-      expect(run_error).to eq(false)
-    end
-  end
-
-  describe "on_failure" do
-    it "runs only on failure" do
-      run_success = false
-      run_error = false
-      Result::Success.new(1).on_failure { run_success = true }
-      Result::Failure.new().on_failure { run_error = true }
-      expect(run_success).to eq(false)
-      expect(run_error).to eq(true)
-    end
-  end
-
   describe "#on" do
     it "reserves error names :success and :failure" do
       expect { Result::Failure.new(:success) }
