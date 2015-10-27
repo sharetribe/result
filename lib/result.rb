@@ -108,6 +108,21 @@ module Result
       end
     }
   end
+
+  def self.all(results)
+    res = results.map { |r|
+      if r.success?
+        r.data
+      else
+        break r
+      end
+    }
+    if res.is_a?(Failure)
+      res
+    else
+      Success.new(res)
+    end
+  end
 end
 
 Result.add_adapter!(:exception) { |block|

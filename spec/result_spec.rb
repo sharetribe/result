@@ -63,6 +63,24 @@ RSpec.describe Result do
     end
   end
 
+  describe "Result.all" do
+    describe "success" do
+      it "returns Success with array" do
+        r = Result.all([Result::Success.new(1), Result::Success.new(2), Result::Success.new(3)])
+        expect(r.success?).to eq(true)
+        expect(r.data).to eq([1,2,3])
+      end
+    end
+    describe "failure" do
+      it "fails on first Failure" do
+        results = [Result::Success.new(1), Result::Success.new(2), Result::Failure.new(nil, "errormessage"), Result::Success.new(3)]
+        r = Result.all(results)
+        expect(r.success?).to eq(false)
+        expect(r.error_msg).to eq("errormessage")
+      end
+    end
+  end
+
   describe "adapters" do
 
     describe "custom adapters" do
