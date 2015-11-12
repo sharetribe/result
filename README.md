@@ -54,9 +54,6 @@ res = Result::Failure.new(:unknown_error, "Unknown error occured", {reason: :unk
 
 # error can be either nil, symbol or Exception
 Result::Failure.new("string") #=> ArgumentError: Error must be either nil, String or Exception
-
-# error codes :error and :success is reserved
-Result::Failure.new(:error) #=> ArgumentError: The error code :error is reserved
 ```
 
 ### on
@@ -64,29 +61,32 @@ Result::Failure.new(:error) #=> ArgumentError: The error code :error is reserved
 ```ruby
 # on success
 Result::Success.new("abc")
-  .on(:success) { |v|
+  .on_success { |v|
     puts v #=> "abc"
-  }.on(:failure) {
+  }.on_failure {
     puts "error" # doesn't go here
   }
 
 # on error
 Result::Failure.new(:generic_error)
-  .on(:success) { |v|
+  .on_success { |v|
     puts v #=> "abc" # doesn't go here
-  }.on(:failure) {
+  }.on_failure {
     puts "error" #=> "error"
   }
 
 # on specific error
 
 Result::Failure.new(:specific_error)
-  .on(:success) { |v|
+  .on_success { |v|
     puts v #=> "abc" # doesn't go here
-  .on(:specific_error) {
-    puts "specific error" #=> "specific error"
-  }.on(:failure) {
-    puts "error" # doesn't go here
+  }.on_failure { |error, error_msg, data }
+    case error
+    when :specific_error
+      puts "specific_error: #{error_msg}"
+    else
+      puts "other error: #{error_msg}"
+    end
   }
 ```
 
@@ -100,7 +100,7 @@ Result::Success.new(1)
   }
   .and_then { |v|
     Result::Success.new(v * 2)
-  }.on(:success) { |v|
+  }.on_success { |v|
     puts v #=> 4
   }
 
@@ -111,9 +111,9 @@ Result::Success.new(1)
   }
   .and_then { |v|
     Result::Success.new(v + 1)
-  }.on(:success) { |v|
+  }.on_success { |v|
     puts v # doesn't go here
-  }.on(:failure) { |error, error_msg, data|
+  }.on_failure { |error, error_msg, data|
     error #=> :some_error
   }
 ```

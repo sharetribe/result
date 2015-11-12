@@ -23,12 +23,14 @@ module Result
       @data = data
     end
 
-    def on(event_or_error, &block)
-      if event_or_error == :success
-        block.call(data)
-      end
+    def on_success(&block)
+      block.call(data)
+      self
+    end
 
-      return self
+    def on_failure(*)
+      # no-op
+      self
     end
   end
 
@@ -59,16 +61,14 @@ module Result
       @error = error
     end
 
-    def on(event_or_error, &block)
-      if event_or_error == :failure
-        block.call(error, error_msg, data)
-      elsif event_or_error == error
-        block.call(error, error_msg, data)
-      elsif event_or_error.is_a?(Class) && error.is_a?(event_or_error)
-        block.call(error, error_msg, data)
-      end
+    def on_success(*)
+      # no-op
+      self
+    end
 
-      return self
+    def on_failure(&block)
+      block.call(error, error_msg, data)
+      self
     end
   end
 

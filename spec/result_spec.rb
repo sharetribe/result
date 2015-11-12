@@ -158,20 +158,13 @@ RSpec.describe Result do
   end
 
   describe "#on" do
-    it "reserves error names :success and :failure" do
-      expect { Result::Failure.new(:success) }
-        .to raise_error(ArgumentError, ":success is reserved and can not be used as an error")
 
-      expect { Result::Failure.new(:failure) }
-        .to raise_error(ArgumentError, ":failure is reserved and can not be used as an error")
-    end
-
-    it "executes on(:success) for Success result" do
+    it "#on_success" do
       on_success = false
       on_failure = false
 
-      Result::Success.new().on(:success) { on_success = true }
-      Result::Success.new().on(:failure) { on_failure = true }
+      Result::Success.new().on_success { on_success = true }
+      Result::Success.new().on_failure { on_failure = true }
 
       expect(on_success).to eq(true)
       expect(on_failure).to eq(false)
@@ -179,18 +172,18 @@ RSpec.describe Result do
 
     it "passes data to the success handler" do
       actual_data = nil
-      Result::Success.new(my_data: true).on(:success) { |result_data|
+      Result::Success.new(my_data: true).on_success { |result_data|
         actual_data = result_data
       }
       expect(actual_data).to eq(my_data: true)
     end
 
-    it "executes on(:failure) for Failure result" do
+    it "#on_failure" do
       on_success = false
       on_failure = false
 
-      Result::Failure.new().on(:success) { on_success = true }
-      Result::Failure.new().on(:failure) { on_failure = true }
+      Result::Failure.new().on_success { on_success = true }
+      Result::Failure.new().on_failure { on_failure = true }
 
       expect(on_success).to eq(false)
       expect(on_failure).to eq(true)
@@ -202,7 +195,7 @@ RSpec.describe Result do
       actual_data = nil
 
       Result::Failure.new(:my_error, "My error message", my_data: true)
-        .on(:failure) { |error, error_msg, data|
+        .on_failure { |error, error_msg, data|
         actual_error = error
         actual_error_msg = error_msg
         actual_data = data
@@ -212,46 +205,13 @@ RSpec.describe Result do
       expect(actual_data).to eq(my_data: true)
     end
 
-    it "executes only for a specific error" do
-      on_failure = false
-      on_error1 = false
-      on_error2 = false
-
-      res = Result::Failure.new(:error1)
-
-      res.on(:failure) { on_failure = true }
-      res.on(:error1) { on_error1 = true }
-      res.on(:error2) { on_error2 = true }
-
-      expect(on_failure).to eq(true)
-      expect(on_error1).to eq(true)
-      expect(on_error2).to eq(false)
-    end
-
-    it "executes only for a specific exception" do
-      on_failure = false
-      on_zero_error = false
-      on_argument_error = false
-
-      exception = ZeroDivisionError.new("You can't devide by zero")
-      res = Result::Failure.new(exception)
-
-      res.on(:failure) { on_failure = true }
-      res.on(ZeroDivisionError) { on_zero_error = true }
-      res.on(ArgumentError) { on_argument_error = true }
-
-      expect(on_failure).to eq(true)
-      expect(on_zero_error).to eq(true)
-      expect(on_argument_error).to eq(false)
-    end
-
     it "allows chaining" do
       success = false
       failure = false
 
       Result::Success.new()
-        .on(:success) { success = true }
-        .on(:failure) { faulure = true }
+        .on_success { success = true }
+        .on_failure { faulure = true }
 
       expect(success).to eq(true)
       expect(failure).to eq(false)
@@ -260,8 +220,8 @@ RSpec.describe Result do
       failure = false
 
       Result::Failure.new()
-        .on(:success) { success = true }
-        .on(:failure) { failure = true }
+        .on_success { success = true }
+        .on_failure { failure = true }
 
       expect(success).to eq(false)
       expect(failure).to eq(true)
