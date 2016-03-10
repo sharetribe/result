@@ -44,7 +44,7 @@ res =
 res = Result::Failure.new(:generic_error, "This is error message")
 puts res.error_msg #=> "This is error message"
 
-# error message is taken from the exception
+# if exception is passed, the error message is taken from the exception
 ex = ArgumentError.new("Exception error message")
 res = Result::Failure.new(ex)
 puts res.error_msg #=> "Exception error message"
@@ -70,20 +70,20 @@ Result::Success.new("abc")
 # on error
 Result::Failure.new(:generic_error)
   .on_success { |v|
-    puts v #=> "abc" # doesn't go here
+    puts v # doesn't go here
   }.on_failure {
     puts "error" #=> "error"
   }
 
 # on specific error
 
-Result::Failure.new(:specific_error)
+Result::Failure.new(:my_error)
   .on_success { |v|
     puts v #=> "abc" # doesn't go here
   }.on_failure { |error, error_msg, data }
     case error
-    when :specific_error
-      puts "specific_error: #{error_msg}"
+    when :my_error
+      puts "my error: #{error_msg}"
     else
       puts "other error: #{error_msg}"
     end
@@ -104,10 +104,10 @@ Result::Success.new(1)
     puts v #=> 4
   }
 
-# error stops the chain
+# failure stops the chain
 Result::Success.new(1)
   .and_then { |v|
-    Result::Error.new(:some_error)
+    Result::Failure.new(:some_error)
   }
   .and_then { |v|
     Result::Success.new(v + 1)
@@ -120,9 +120,9 @@ Result::Success.new(1)
 
 ### Adapters
 
-Adapters let's you to convert other objects that describe a result of a operation to Result object.
+Adapters let you to convert other objects that describe a result of a operation to Result object.
 
-To call adapters, use `Result.from` method with the adapter name and a block.
+To call an adapter, use `Result.from` method with the adapter name and a block.
 
 Out-of-the-box, Result implements only one adapter, `:exception`
 
@@ -169,15 +169,15 @@ Result.from(:hash) {
 #=> #<Result::Failure:0x00000104018060 @error_msg=nil, @success=false, @data={:success=>false, :additional_data=>nil}, @error=nil>
 ```
 
-### Shortcut methods Succ and Fail
+### Shortcut methods Success and Failure
 
 ```ruby
 # for convenience, you can use shortcut methods
-Succ("successful")
+Success("successful")
 #=> #<Result::Success:0x007faa41872d08 @success=true, @data="successful">
 
 # for convenience, you can use shortcut methods
-Fail(:failure)
+Failure(:failure)
 #=> #<Result::Failure:0x007faa41851540 @error_msg=nil, @success=false, @data=nil, @error=:failure>
 ```
 
