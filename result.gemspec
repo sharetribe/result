@@ -5,5 +5,6 @@ Gem::Specification.new do |s|
   s.authors     = ["Sharetribe"]
   s.email       = 'team@sharetribe.'
   s.files       = ["lib/result.rb"]
+  s.summary     = "Result object"
   s.homepage    = 'https://github.com/sharetribe/result'
 end
